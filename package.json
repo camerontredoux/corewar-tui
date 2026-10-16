@@ -1,0 +1,22 @@
+{
+  "name": "corewar-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ICWS'94 Redcode parser, simulator and match runner with an OpenTUI terminal UI",
+  "module": "packages/engine/index.ts",
+  "scripts": {
+    "test": "bun test --coverage",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "bun build packages/engine/index.ts --outdir dist --target bun --format esm",
+    "start": "bun run packages/tui/main.ts",
+    "oracle": "bun run packages/engine/oracle/run.ts"
+  },
+  "dependencies": {
+    "@opentui/core": "0.6.6"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.3",
+    "typescript": "^7.0.2"
+  }
+}

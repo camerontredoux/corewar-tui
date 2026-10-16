@@ -1,0 +1,675 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`user warriors (copies in fixtures/) load files are stable 1`] = `
+{
+  "examples/artofcorewar.red": 
+";redcode-94
+;name The Art of CoreWar
+;author Fluffy/Sascha Zapf
+;strategy qBob -> paper
+ORG 0
+SNE.I $6536, $10393
+SEQ.I <92, $9642
+JMP.B $29, {29
+SNE.I $6033, $9890
+SEQ.I <91, $9139
+JMP.B $26, }26
+SNE.I $330, $4187
+SEQ.I <34, $6636
+JMP.B $23, <22
+SNE.I $6227, $10084
+SEQ.I <33, $4533
+JMP.B $20, >19
+SNE.I $7524, $11381
+SEQ.I {29, $8880
+JMP.B $16, }7518
+SNE.I $3021, $6878
+SEQ.I {27, $4377
+JMP.B $13, }13
+SNE.I $4018, $7875
+SEQ.I {22, $5374
+JMP.B $10, {10
+SNE.I $2515, $6372
+SEQ.I $1764, <72
+JMP.B $8, }2509
+SEQ.I $412, $4269
+JMP.B $8, }407
+SEQ.I $760, $4617
+JMP.B $5, }755
+SNE.I $3508, $7365
+JMZ.F $64, $7365
+MUL.AB $12, $12
+MUL.B $63, @-1
+MOV.B @-2, $4
+SNE.I $7, @3
+ADD.AB #3857, $2
+MOV.I $9, @1
+MOV.I $8, }400
+ADD.AB #6, $-1
+DJN.B $-3, #19
+JMP.B $54, $0
+DAT.F $0, $0
+DAT.F $1496, $2746
+DAT.F $4995, $750
+DAT.F $494, $644
+DAT.F >-80, >1
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+SPL.B @8, }939
+MOV.I }-1, >-1
+SPL.B @0, >1928
+MOV.I }-1, >-1
+MOV.I #6332, {1
+MOV.I $174, }6853
+MOV.I {-4, <1
+JMZ.A @0, $241
+SPL.B }1, <5694
+SPL.B $0, <5550
+SPL.B $1, <5192
+MOV.I {-11, {1
+SPL.B $9624, {8505
+MOV.I }-1, >-1
+DJN.F $8503, {4856
+"
+,
+  "examples/excalibur.red": 
+";redcode-94
+;name Excalibur
+;author inversed
+;strategy Completely reworked Agony II
+ORG 57
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+SPL.BA #1, $1
+SPL.F #1, $1
+SPL.X #1, $1
+SPL.I #1, $1
+SPL.I $1, $1
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+SPL.BA #1, $1
+SPL.F #1, $1
+SPL.X #1, $1
+SPL.I #1, $1
+SPL.I $1, $1
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+SPL.BA #1, $1
+SPL.F #1, $1
+SPL.X #1, $1
+SPL.I #1, $1
+SPL.I $1, $1
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+SPL.BA #1, $1
+SPL.F #1, $1
+SPL.X #1, $1
+SPL.I #1, $1
+SPL.I $1, $1
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+SPL.BA #1, $1
+SPL.F #1, $1
+SPL.X #1, $1
+SPL.I #1, $1
+SPL.I $1, $1
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+SPL.BA #1, $1
+SPL.F #1, $1
+SPL.X #1, $1
+SPL.I #1, $1
+SPL.I $1, $1
+SPL.A #1, $1
+SPL.B #1, $1
+SPL.AB #1, $1
+MOV.I >9, }9
+MOV.I >8, }8
+MOV.I >7, }7
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+MOV.I >11, }11
+MOV.I >10, }10
+MOV.I >9, }9
+MOV.I >8, }8
+MOV.I >7, }7
+MOV.I >6, }6
+MOV.I >5, }5
+MOV.I >4, }4
+MOV.I >3, }3
+MOV.I >2, }2
+MOV.I >1, }1
+SPL.B $1431, $8
+MOV.I >-1, }-1
+MOV.I >-2, }-2
+MOV.I >-3, }-3
+MOV.I >-4, }-4
+MOV.I >-5, }-5
+DAT.F }-6, }-6
+MOV.I >1, }1
+SUB.F *9, @3
+SNE.I $-9, $-1
+SUB.F *7, $-1
+SEQ.I *-2, @-2
+SLT.AB #27, @-1
+DJN.F $-5, <-349
+MOV.B @-3, #0
+MOV.AB #8, $3
+MOV.I $4, <-2
+MOV.I $3, <-3
+DJN.B $-2, #0
+JMZ.A $-11, $-12
+SPL.B #-3147, $-3147
+MOV.I $2, >-4
+DJN.F $-1, {-5
+DAT.F $3, $10
+MOV.I $4, <-2
+MOV.I $3, <-3
+DJN.B $-2, #0
+JMZ.A $-11, $-12
+SPL.B #-3147, $-3147
+MOV.I $2, >-4
+DJN.F $-1, {-5
+DAT.F $3, $10
+"
+,
+  "examples/forgottenloreii.red": 
+";redcode-94
+;name Forgotten Lore II
+;author David Moore
+;strategy Scanning vamp which multitasks between two forms of attack.
+;strategy First, DJNs are delivered throughout the core in an effort
+;strategy to immobilize typical stones and core clears.
+;strategy Second, scan for anything nonzero and drop a JMP on it.
+;strategy The JMP points to a trap.
+;strategy Next, we wipe the core with SPLs, starting with the trap.
+;strategy Finally, the SPL clear is converted to a DAT clear.
+;strategy Version II strategy: Instead of using pspace to switch
+;strategy between a vamp and a 1-shot SPL/DAT clear, combine them into
+;strategy the same warrior. Rather than jumping to the SPL clear
+;strategy as soon as something is scanned, wait until we've actually
+;strategy captured a process.
+ORG 21
+DAT.F $0, $0
+JMP.B @335, $-117
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+MOV.X #-125, $199
+MOV.X #-124, }72
+MOV.I >74, >7
+MOV.I $-5, }3
+SUB.X #23, $-24
+MOV.I $50, *-25
+JMZ.F $-6, <-26
+MOV.I @-2, @-27
+JMZ.F $-4, $-29
+JMP.B $20, <6619
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $25, $3987
+DAT.F $0, $0
+DAT.F <2667, $9
+SPL.B #11, {6568
+MOV.I $-1, >-4
+MOV.I *-1, }-5
+JMP.B $-2, <-3
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DJN.F #1, $1
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+SPL.B #124, <-94
+SPL.B $-1, <-95
+SPL.B #4000, }1
+JMN.A #-8000, #-3
+DAT.F $0, $0
+DAT.F $0, $0
+"
+,
+  "examples/sonofvain.red": 
+";redcode-94
+;name Son of Vain
+;author Oversby/Pihlaja
+;strategy qscan -> stone/imp
+ORG 48
+SPL.B $83, >609
+SPL.B $1, >6686
+SPL.B $1, >4763
+MOV.I <31, <3
+MOV.I <67, {2
+MOV.I <9, {2
+SPL.B $2595, $7324
+JMP.B $7421, <83
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+SPL.B #1, $4
+ADD.A #2667, $1
+DJN.F $-2625, <-1472
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.A $60, $2149
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+MOV.I #10, $2667
+DAT.A >3643, >1
+DAT.A <2667, $17
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+SPL.B #0, $4
+SPL.B #0, {-10
+MOV.I $-9, >-11
+DJN.F $-1, >-12
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+SEQ.I $5062, $11748
+JMP.B $44, $0
+SNE.I $19664954, $19671640
+SEQ.I <18, $19666625
+DJN.A $40, {40
+SNE.I $10023029, $10029715
+SEQ.I <16, $10024700
+JMP.B $37, {37
+SNE.I $3053566, $3054175
+SEQ.I <-57, $3049159
+JMP.B $34, {36
+SNE.I $23881719, $23886482
+SEQ.I <-58, $23881466
+JMP.B $31, }33
+SEQ.I $3043532, $3044139
+DJN.B $29, {31
+SNE.I $10775118, $10781804
+SEQ.I <-45, $10776789
+JMP.B $26, }26
+SNE.I $33523633, $33530319
+SEQ.I <-67, $33525303
+JMP.B $23, >3922
+JMP.B $-70, >1999
+SPL.B $0, $4
+MOV.I $8, @2
+ADD.AB #6457, @-1
+DJN.A @-1, *-14809545
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+MOV.I $-58, $7386
+MOV.I $-58, $2522
+MOV.I $-58, $7234
+MOV.I $-15, {-80
+MOV.I $-60, <-2
+MOV.X #-5667, <-3
+SPL.B @-83, $0
+DJN.A $-55, *-79
+DAT.F $0, $0
+MUL.B *2, $4
+SNE.I {-23, @3
+ADD.B $-93, $2
+MOV.I $-75, @1
+MOV.I $-76, *5014
+SUB.AB #7, $-1
+DJN.B $-3, #13
+JMP.B $-99, $0
+"
+,
+  "examples/sunset.red": 
+";redcode-94
+;name Sunset
+;author David Moore
+;strategy P^3
+;strategy Recon 2 or paper + stone
+ORG 42
+NOP.F $5518, $5518
+ADD.F $-1, $7
+MOV.I $27, <6
+MOV.I {-1, <5
+MOV.I {-2, <4
+MOV.I {-3, <3
+MOV.I {-4, <2
+JMN.B $-5, {-5
+SPL.B $1287, $1297
+MOV.I $2, $-1
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $19, $19
+SPL.B #-6557, #-6557
+MOV.I $-1, >-4
+MOV.I *-1, >-5
+DJN.A $-2, $7
+SUB.F $-4, @3
+SNE.I $6556, $6550
+SUB.F $-6, $-1
+SEQ.I *-2, @-2
+SLT.A #20, $-3
+DJN.B $-5, #4800
+SUB.BA #0, #-7
+MOV.AB @-4, @-10
+JMN.B *-10, $-3
+DJN.A <-2, {-1
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+LDP.A #0, $15
+LDP.BA $2, $3
+MOD.BA *13, $2
+STP.B *1, #234
+JMP.B }0, $724
+JMP.B $44, $130
+DAT.F $-47, $666
+DAT.F $42, $835
+DAT.F $-48, $448
+DAT.F $40, $857
+DAT.F $-51, $776
+DAT.F $38, $362
+DAT.F $-52, $778
+DAT.F $36, $801
+DAT.F $35, $923
+DAT.F $0, $9
+DAT.F $0, $11
+DAT.F $0, $10
+DAT.F $-52, $778
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+DAT.F $0, $0
+SPL.B #5724, {5724
+MOV.I $5, *2
+ADD.F $-2, $1
+MOV.I $4655, $7517
+JMP.B $-3, $-4
+DAT.F $0, $0
+DAT.F }1, >1
+SPL.B $4200, {3
+MOV.I }2, }-1
+MOV.I $3, >5200
+MOV.I $3, }-3
+JMZ.F $-4, *-1
+DAT.F <2667, <5334
+MOV.I >-9, >6
+SPL.B $2, >3988
+SPL.B $1, >4191
+SPL.B $1, $-3
+MOV.I >-13, >2
+MOV.I <-2, {3
+SPL.B @2, $5294
+SPL.B @1, >-1
+DJN.B $5521, #5292
+"
+,
+  "examples/validate.red": 
+";redcode-94
+;name Validate 1.1R
+;author Stefan Strack
+;strategy System validation program - based on Mark Durham's validation suite
+ORG 0
+SPL.B $8, $3
+JMZ.B <-1, $0
+DJN.B $0, #36
+SUB.AB #1, @-3
+MOV.I $2, <87
+JMP.B $-1, $0
+DAT.F #0, #1
+DAT.F #0, #3
+SPL.B $2, $0
+DAT.F <-2, <-2
+CMP.I $-4, $-3
+JMP.B $73, $0
+SPL.B $5, $0
+JMZ.B $3, <0
+DAT.F #0, #1
+DAT.F #0, #2
+JMP.B @0, <0
+JMP.B <2, #0
+JMP.B $3, $0
+DAT.F #0, #0
+DAT.F #0, #-1
+CMP.I $-7, $-6
+JMP.B $62, $0
+CMP.I $-4, $-3
+JMP.B $60, $0
+JMP.B <2, <2
+JMP.B $3, $0
+DAT.F #0, #0
+DAT.F #0, #-2
+CMP.I $-2, $-1
+JMP.B $54, $0
+MOV.I $1, <1
+JMN.B $2, $1
+JMN.B $2, $1
+CMP.I $-2, $-1
+JMP.B $49, $0
+MOV.I @0, <1
+JMN.B $2, $1
+JMN.B $2, $1
+CMP.I $-2, $-1
+JMP.B $44, $0
+SPL.B $5, $0
+MOV.I <1, $2
+DAT.F <0, #1
+DAT.F <0, #1
+DAT.F <0, #-1
+MOV.I <1, $1
+JMZ.B $2, $1
+JMP.B $36, $0
+CMP.I $-6, $-4
+JMP.B $34, $0
+ADD.F $1, <1
+JMP.B $1, $1
+JMP.B $2, $1
+CMP.I $-2, $-1
+JMP.B $29, $0
+ADD.F @0, <1
+JMP.B $1, $1
+JMP.B $26, $0
+CMP.I $-6, $-2
+JMP.B $24, $0
+SPL.B $4, $0
+CMP.I $4, $5
+JMP.B $5, $0
+JMP.B $20, $0
+SUB.F <1, $1
+DAT.F #2, #1
+DAT.F #0, #0
+CMP.I $-2, $-1
+JMP.B $15, $0
+SUB.F <1, <1
+JMP.B $3, $1
+SUB.F <-2, <1
+JMP.B $3, $-1
+CMP.I $-4, $-2
+JMP.B $9, $0
+CMP.I $-5, $-3
+JMP.B $7, $0
+CMP.I $-79, $3
+JMP.B $3, $0
+JMP.B $4, $0
+DAT.F #0, #0
+SLT.AB #0, $-80
+JMP.B $5, $0
+MOV.I $-82, $3
+MOV.I $-79, $-83
+JMP.B $-82, $0
+DAT.F #0, #0
+MOV.I $-1, $-84
+JMP.B $0, $0
+"
+,
+  "warriors/dwarf.red": 
+";redcode-94
+;name Dwarf
+;author Blameless
+ORG 0
+ADD.AB #4, $3
+MOV.I $2, @2
+JMP.B $-2, $0
+DAT.F #0, #0
+"
+,
+  "warriors/imp.red": 
+";redcode-94
+;name Imp
+;author Blameless
+ORG 0
+MOV.I $0, $1
+"
+,
+}
+`;

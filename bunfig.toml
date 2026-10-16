@@ -1,0 +1,3 @@
+[test]
+# Only our code is tested; src/ holds the pMARS C sources and is off limits.
+root = "packages"

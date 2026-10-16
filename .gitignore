@@ -1,0 +1,15 @@
+node_modules/
+coverage/
+dist/
+*.log
+.DS_Store
+
+# pMARS (GPL; used locally as the test oracle, not distributed)
+/pmars
+/src/
+
+# Local state and scratch warriors
+.memory/
+.trash/
+*.bak
+warriors/untitled*.red
