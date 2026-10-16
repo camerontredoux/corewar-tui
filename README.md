@@ -36,6 +36,10 @@ bomb    dat     #0, #0
 - Match settings with the standard presets (`standard`, `beginner`, `nano`, `tiny`, `lp`, `large`, `icws88`), or your own core size, cycle limit, process limit and more.
 - A two-page help screen: the keys, then a complete Redcode reference.
 
+On a wide terminal the whole core fits at one address per character, so you can see each `×` write and `•` read:
+
+![The whole 4000-cell core at one address per character](docs/board-full.png)
+
 ### The warrior editor
 Press `n` for a new warrior, or `e` to edit one.
 
