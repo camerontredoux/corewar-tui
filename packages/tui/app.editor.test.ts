@@ -847,8 +847,8 @@ describe('space snaps to columns', () => {
         await press(KeyCodes.RETURN);
         await press(KeyCodes.BACKSPACE);
         await type('j');
-        await press(KeyCodes.TAB); // tab still accepts with one space
-        expect(editor().text.endsWith('\njmp ')).toBe(true);
+        await press(KeyCodes.TAB); // tab accepts, and its space snaps to the operand column too
+        expect(editor().text.split('\n').at(-1)).toBe('jmp     ');
     });
 
     test('with vim keys: space with the box open closes it and snaps the label', async () => {
@@ -974,7 +974,7 @@ describe('autocomplete', () => {
         expect(screen()).not.toContain('jump to A'); // jmz is complete and the only match
     });
 
-    test('↓ then tab inserts the second match and a space; one ctrl+z undoes it', async () => {
+    test('↓ then tab inserts the second match and snaps to the operand column; one ctrl+z undoes it', async () => {
         await blank();
         await press('j');
         const frame = () => s.captureSpans();
@@ -983,11 +983,20 @@ describe('autocomplete', () => {
         await press(KeyCodes.ARROW_DOWN);
         expect(cellAt(frame(), x, rowOf('jmz A, B')).bg).toBe(HEX.selection);
         expect(cellAt(frame(), x, rowOf('jmp A')).bg).not.toBe(HEX.selection);
-        await press(KeyCodes.TAB);
-        expect(editor().text).toBe('jmz ');
+        await press(KeyCodes.TAB); // the space after it snaps to the operand column
+        expect(editor().text).toBe('jmz     ');
         expect(screen()).not.toContain('jump to A');
         await press('z', { ctrl: true });
         expect(editor().text).toBe('j');
+    });
+
+    test('backspace after a tab completion takes its snapped gap at once', async () => {
+        await blank();
+        await press('j');
+        await press(KeyCodes.TAB);
+        expect(editor().text).toBe('jmp     ');
+        await press(KeyCodes.BACKSPACE);
+        expect(editor().text).toBe('jmp');
     });
 
     test('the completion keeps the typed case, and adds no space when one follows', async () => {
@@ -1042,7 +1051,7 @@ describe('autocomplete', () => {
         expect(screen()).toContain('spl A');
         await press(KeyCodes.ARROW_DOWN);
         await press(KeyCodes.TAB);
-        expect(editor().text).toBe('seq ');
+        expect(editor().text).toBe('seq     ');
         await press('j');
         expect(screen()).not.toContain('jump to A'); // an operand
         await escape();
@@ -1061,7 +1070,7 @@ describe('autocomplete', () => {
         await press(KeyCodes.TAB);
         await escape();
         await press('.');
-        expect(editor().text).toBe('jmp jmp ');
+        expect(editor().text).toBe('jmp     jmp ');
     });
 
     test('the box has no border: exactly its rows, one space each side of the text, on the popup colour', async () => {

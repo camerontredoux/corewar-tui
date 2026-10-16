@@ -172,7 +172,7 @@ While format on save is on, the editor also indents new lines to the opcode colu
 While format on save is on, `space` at the end of a line can type several spaces, so a line you type already has the layout that format on save gives it:
 
 - After a label that starts the line (the first word, in column 0, is not an opcode or directive), `space` pads to the opcode column, the same column auto-indent uses. If the label is too long for that column, `space` types two spaces.
-- This also works while the completion box is open, which happens when a label begins like an opcode (`st`, `j`, `d`): `space` closes the box and snaps. `tab` still accepts the highlighted match and adds one space.
+- This also works while the completion box is open, which happens when a label begins like an opcode (`st`, `j`, `d`): `space` closes the box and snaps. `tab` accepts the highlighted match, and the space it adds snaps to the operand column like a typed one.
 - After the opcode or directive word, with any `.modifier`, `space` pads to the column that format on save puts operands in: 8 columns past the opcode column, or the longest opcode plus two.
 - Typing `bomb dat #0, #1` gives `bomb    dat     #0, #1`, and saving does not change it.
 - Everywhere else `space` types one space: in operands and comments, after a word in the opcode place that is not an opcode, a second space, and before text that follows the cursor.

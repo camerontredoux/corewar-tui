@@ -357,8 +357,6 @@ export class EditorOverlay implements Overlay, VimHost {
     private completionStale = false;
     /** The last snapped space: the text it made, the cursor after it, and its width (for backspace). */
     private snap: { text: string; end: number; width: number } | null = null;
-    /** Set while a completion is typed into vim key by key. */
-    private accepting = false;
     private readonly popup: BoxRenderable;
     private readonly popupText: SegmentText;
 
@@ -517,7 +515,7 @@ export class EditorOverlay implements Overlay, VimHost {
     /** With format on save on, space snaps to the next column (`snapWidth`), also when it closes the completion box. */
     space(text: string, cursor: number): string {
         this.snap = null;
-        if (!this.prefs.formatOnSave || this.accepting) return ' ';
+        if (!this.prefs.formatOnSave) return ' ';
         const ta = this.textarea;
         const n = snapWidth(text, cursor, (s) => (NARROW.test(s) ? s.length : ta.editBuffer.measureText(s)));
         const blanks = ' '.repeat(n);
@@ -829,7 +827,8 @@ export class EditorOverlay implements Overlay, VimHost {
 
     /**
      * Tab: replace the typed part with the highlighted match, in the typed
-     * case, and add a space unless a blank already follows. One undo step
+     * case, and add the gap a space would (it snaps to the operand column with
+     * format on save on) unless a blank already follows. One undo step
      * without vim keys; with them it is typed as keys, so it is part of the
      * insert that `u` undoes and `.` repeats.
      */
@@ -840,22 +839,26 @@ export class EditorOverlay implements Overlay, VimHost {
         const typed = line.slice(c.start, c.end);
         let keep = 0;
         while (keep < typed.length && typed[keep] === name[keep]) keep++;
-        const insert = name.slice(keep) + (/^[ \t]/.test(line.slice(c.end)) ? '' : ' ');
+        const add = name.slice(keep);
+        const spaced = !/^[ \t]/.test(line.slice(c.end));
         this.completion = null;
         if (this.vim) {
+            // Typed as keys: the space goes through the space hook, so it snaps like a typed space.
             for (let k = keep; k < typed.length; k++) this.vim.handleKey({ name: 'backspace' });
-            this.accepting = true; // the space after a completion is one space, as in the plain editor
-            for (const ch of insert) this.vim.handleKey(ch === ' ' ? { name: 'space', sequence: ' ' } : { name: ch, sequence: ch });
-            this.accepting = false;
+            for (const ch of add) this.vim.handleKey({ name: ch, sequence: ch });
+            if (spaced) this.vim.handleKey({ name: 'space', sequence: ' ' });
         } else {
             const buffer = this.vimBuffer();
             const at = buffer.cursor;
-            if (keep === typed.length) this.textarea.insertText(insert);
+            const from = at - (typed.length - keep);
+            const end = from + add.length;
+            const completed = this.text.slice(0, from) + add + this.text.slice(at);
+            const gap = spaced ? this.space(completed, end) : '';
+            if (keep === typed.length) this.textarea.insertText(add + gap);
             else {
                 // Changing the typed case: replacing the whole text keeps it one undo step (deleting first would make two).
-                const from = at - (typed.length - keep);
-                this.textarea.replaceText(this.text.slice(0, from) + insert + this.text.slice(at));
-                buffer.cursor = from + insert.length;
+                this.textarea.replaceText(completed.slice(0, end) + gap + completed.slice(end));
+                buffer.cursor = end + gap.length;
             }
         }
         this.renderer.requestRender();

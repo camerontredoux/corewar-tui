@@ -44,7 +44,7 @@ Press `n` for a new warrior, or `e` to edit one.
 - **Live diagnostics.** The parser runs while you type. Lines with errors turn red, and the status line shows the first error.
 - **Autocomplete** for instructions and directives, with a one-line description of each: `jmz A, B   jump to A if B is zero`.
 - **Format on save.** Labels, instructions and operands snap into aligned columns. The formatter checks that the formatted warrior compiles to exactly the same code. If it does not, your text is saved as you typed it.
-- **Auto-indent and column snapping.** `Enter` lines the next instruction up under the one above. `space` after a label or an instruction jumps to the next column, so code is aligned as you type.
+- **Auto-indent and column snapping.** `Enter` lines the next instruction up under the one above. `space` (or accepting a completion with `Tab`) after a label or an instruction jumps to the next column, so code is aligned as you type.
 - **Relative cell numbers** in the gutter, because Redcode addresses are relative.
 - **Optional vim keys** (`F2`): motions, operators, counts, `ciw`, visual mode, `.` repeat, undo, `:w` and `:q`.
 - Save is one key (`ctrl+s`). Deleted warriors go to a `.trash/` folder, so you can get them back.
