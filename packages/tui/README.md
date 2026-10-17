@@ -135,7 +135,7 @@ The box has no border: it is a block of a slightly lighter background, one row p
 
 ### Preview
 
-The preview is off by default. Press `F6` to turn it on. The editor gets wider, and a panel at its right runs the warrior alone in a core, one instruction a second. Use it to see what each instruction does.
+The preview is off by default. Press `F6` to turn it on. The editor gets wider, and a panel at its right loads the warrior alone in a core, paused. Press `F7` to run it, one instruction a second. Use it to see what each instruction does.
 
 ```
 PREVIEW                   step 7
@@ -154,7 +154,7 @@ next   +1  MOV.I $2, @2
            r +3 w +3
 ```
 
-- The preview runs the saved text, not the text you are typing. Each save restarts it from step 0 and plays it. While the text has unsaved changes, the panel says `unsaved: runs the last save`.
+- The preview runs the saved text, not the text you are typing. Each save puts it back at step 0, paused. While the text has unsaved changes, the panel says `unsaved: runs the last save`.
 - The run uses the match settings (core size, cycle limit, process limit, standard). Offsets and wrap-around are the same as in a battle.
 - Offsets count from the warrior's first instruction (`+0`), like the relative line numbers. The board shows 10 cells per row. Its first row starts 10 cells before the warrior. The labels at the left give the offset of each row's first cell.
 - Board glyphs are the same as on the main board: `■` runs next, the white `█` ran last, `█` ran earlier, `×` was written, `•` was read, and `░` holds the warrior's code that has not been touched.

@@ -10,9 +10,9 @@
  * log. Offsets count from the warrior's first instruction, as the editor's
  * relative gutter does.
  *
- * Saving restarts it, playing (`load`). F7 plays or pauses (or restarts
- * after the end), F8 runs one step and pauses, F9 goes back to the start,
- * paused; the header buttons do the same. Clicking a cell shows what it holds now.
+ * Saving goes back to the start, paused (`load`): nothing runs until F7.
+ * F7 plays or pauses (or restarts after the end), F8 runs one step and
+ * pauses, F9 goes back to the start, paused; the header buttons do the same. Clicking a cell shows what it holds now.
  */
 
 import { BoxRenderable, type CliRenderer } from '@opentui/core';
@@ -132,11 +132,11 @@ export class Preview {
         return this.coresize > 4 * COLS ? COLS : 0;
     }
 
-    /** Run `source` from the start (`result` is its parse), playing. */
+    /** Set up `source` (`result` is its parse) at the start, paused. */
     load(source: string, result: IParseResult): void {
         this.source = source;
         this.result = result;
-        this.restart(true);
+        this.restart();
     }
 
     /** Nothing to run: `why` says so in place of the run. */

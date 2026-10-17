@@ -1122,14 +1122,17 @@ describe('preview', () => {
         return cellAt(s.captureSpans(), rows[y]!.indexOf(text), y).bg;
     }
 
-    test('F6 runs the saved text beside it, a step a second, and the preference is kept', async () => {
+    test('F6 sets up the saved text beside it, paused; F7 runs it a step a second; the preference is kept', async () => {
         await boot();
         await press('n');
         expect(screen()).not.toContain('PREVIEW');
-        // F6 goes to the editor directly: the test renderer's key input waits on real timers.
+        // The keys go to the editor directly: the test renderer's key input waits on real timers.
         jest.useFakeTimers();
         try {
             editor().handleKey({ name: 'f6' } as KeyEvent);
+            jest.advanceTimersByTime(PREVIEW_STEP_MS * 3);
+            expect(editor().preview.playing).toBe(false);
+            editor().handleKey({ name: 'f7' } as KeyEvent);
             jest.advanceTimersByTime(PREVIEW_STEP_MS * 3); // add, mov, jmp: back at the add
         } finally {
             jest.useRealTimers();
@@ -1159,9 +1162,10 @@ describe('preview', () => {
         expect(lineBg('jmp     loop')).toBe(NEXT_LINE_BG);
     });
 
-    test('saving restarts it on the new text; until then it says it runs the last save and lights no line', async () => {
+    test('saving resets it to the new text, paused; until then it says it runs the last save and lights no line', async () => {
         await openPreview();
         await press(KeyCodes.F8);
+        await press(KeyCodes.F7);
         editor().textarea.setText(`${NEW_WARRIOR_TEMPLATE}; a note\n`);
         await s.renderOnce();
         await s.renderOnce(); // the change event comes during the first frame
@@ -1171,6 +1175,7 @@ describe('preview', () => {
         editor().textarea.setText(';name Imp\nmov 0, 1\n');
         await press('s', { ctrl: true });
         expect(screen()).not.toContain('runs the last save');
+        expect(screen()).toContain('❚❚ paused');
         expect(screen()).toContain('step 0');
         expect(screen()).toContain('next   +0  MOV.I $0, $1');
     });
@@ -1205,6 +1210,7 @@ describe('preview', () => {
     test('closing the editor stops the run', async () => {
         await openPreview();
         const preview = editor().preview;
+        await press(KeyCodes.F7);
         expect(preview.playing).toBe(true);
         await escape();
         expect(app.overlays.isOpen('editor')).toBe(false);
