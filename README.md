@@ -2,7 +2,7 @@
 
 **Core War in your terminal.** Write tiny assembly programs, drop them into a shared memory ring, and watch them fight to the death.
 
-This project is a complete implementation of the [Core War](https://corewar-docs.readthedocs.io/en/latest/) spec (ICWS'94 Redcode, with P-space). It is written in TypeScript and draws its UI with [OpenTUI](https://opentui.com). An in-app editor lets you write warriors with syntax highlighting, live diagnostics, autocomplete and format on save, then send them straight into battle.
+This project is a complete implementation of the [Core War](https://corewar-docs.readthedocs.io/en/latest/) spec (ICWS'94 Redcode, with P-space). It is written in TypeScript and draws its UI with [OpenTUI](https://opentui.com). An in-app editor lets you write warriors with syntax highlighting, live diagnostics, autocomplete, format on save and a step-by-step preview, then send them straight into battle.
 
 ![Four warriors fighting over a 4000-cell core](docs/board.png)
 

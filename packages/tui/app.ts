@@ -274,6 +274,7 @@ export function createApp(renderer: CliRenderer, options: AppOptions = {}): App 
                     prefs = next;
                     if (options.configPath) savePrefs(options.configPath, next);
                 },
+                options: controller.settings.options,
             }),
         );
     }
@@ -593,6 +594,7 @@ export function createApp(renderer: CliRenderer, options: AppOptions = {}): App 
         refresh,
         destroy() {
             stopTicking();
+            overlays.closeAll(); // the editor preview's step timer stops with it
             renderer.keyInput.off('keypress', onKey);
             renderer.off('resize', onResize);
         },

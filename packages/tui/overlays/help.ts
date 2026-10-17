@@ -159,6 +159,8 @@ export class HelpOverlay implements Overlay {
         lines.push(entry('F3', 'relative numbers on/off: offsets from cursor', 8));
         lines.push(entry('F4', 'format on save, auto-indent, snap on/off', 8));
         lines.push(entry('F5', 'autocomplete on/off: ↑/↓ pick, tab accepts', 8));
+        lines.push(entry('F6', 'preview on/off: the saved warrior, 1 step/s', 8));
+        lines.push(entry('F7-F9', 'preview: play/pause · one step · reset', 8));
         lines.push([]);
         lines.push(heading('Board'));
         const warriors = [warriorHex(0), warriorHex(1)];

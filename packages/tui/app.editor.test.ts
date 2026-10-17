@@ -1,14 +1,16 @@
 /** The warrior editor in the app, with the real parser and a temp library. */
 
-import { afterEach, describe, expect, test } from 'bun:test';
+import { afterEach, describe, expect, jest, test } from 'bun:test';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import type { KeyEvent } from '@opentui/core';
 import { KeyCodes, createTestRenderer, type TestRendererSetup } from '@opentui/core/testing';
 import { createApp, type App } from './app.ts';
 import { formatRedcode } from '../engine/parser/index.ts';
 import { CHECK_DELAY_MS, EditorOverlay, NEW_WARRIOR_TEMPLATE, autoIndent, backspaceWidth, completionAt, snapWidth, tokenizeLine } from './overlays/editor.ts';
 import type { PickerOverlay } from './overlays/picker.ts';
+import { NEXT_LINE_BG, PREVIEW_STEP_MS } from './overlays/preview.ts';
 import { HEX } from './theme.ts';
 import { cellAt } from './test-fakes.ts';
 
@@ -336,7 +338,7 @@ describe('vim keys', () => {
         await boot();
         await press('n');
         await press(KeyCodes.F2);
-        expect(prefs()).toEqual({ vimKeys: true, relativeNumbers: true, formatOnSave: true, autocomplete: true });
+        expect(prefs()).toEqual({ vimKeys: true, relativeNumbers: true, formatOnSave: true, autocomplete: true, preview: false });
         expect(screen()).toContain('NORMAL');
         expect(screen()).toContain(':w save · esc/:q close');
         await press('j');
@@ -425,7 +427,7 @@ describe('editor preferences file', () => {
         await press(KeyCodes.F3);
         await press(KeyCodes.F4);
         await press(KeyCodes.F5);
-        expect(prefs()).toEqual({ vimKeys: true, relativeNumbers: false, formatOnSave: false, autocomplete: false });
+        expect(prefs()).toEqual({ vimKeys: true, relativeNumbers: false, formatOnSave: false, autocomplete: false, preview: false });
         app.destroy();
         await s.dispose();
         s = await createTestRenderer({ width: 120, height: 36, kittyKeyboard: true, exitOnCtrlC: false });
@@ -433,9 +435,9 @@ describe('editor preferences file', () => {
         await s.renderOnce();
         await press('n');
         expect(screen()).toContain('F2 vim keys: on');
-        expect(screen()).toContain('F3 relative numbers: off');
-        expect(screen()).toContain('F4 format on save: off');
-        expect(screen()).toContain('F5 auto: off'); // shortened so the others fit beside NORMAL
+        expect(screen()).toContain('F3 rel: off'); // shortened so the others fit beside NORMAL
+        expect(screen()).toContain('F4 fmt: off');
+        expect(screen()).toContain('F5 auto: off');
         await press('j'); // moves rather than typing
         expect(editor().text).toBe(NEW_WARRIOR_TEMPLATE);
     });
@@ -485,7 +487,7 @@ describe('format on save', () => {
     test('is on by default, shown as F4; the template is already formatted', async () => {
         await boot();
         await press('n');
-        expect(screen()).toContain('F4 format on save: on');
+        expect(screen()).toContain('F4 fmt: on');
         expect(formatRedcode(NEW_WARRIOR_TEMPLATE)).toBe(NEW_WARRIOR_TEMPLATE);
     });
 
@@ -552,7 +554,7 @@ describe('format on save', () => {
     test('F4 turns it off: saved as typed, and the preference is kept', async () => {
         await openAlpha();
         await press(KeyCodes.F4);
-        expect(screen()).toContain('F4 format on save: off');
+        expect(screen()).toContain('F4 fmt: off');
         expect(prefs().formatOnSave).toBe(false);
         editor().textarea.setText(MESSY);
         await press('s', { ctrl: true });
@@ -1095,14 +1097,118 @@ describe('autocomplete', () => {
 
     test('F5 turns it off and the preference is saved', async () => {
         await blank();
-        expect(screen()).toContain('F5 autocomplete: on');
+        expect(screen()).toContain('F5 auto: on');
         await press(KeyCodes.F5);
         expect(prefs().autocomplete).toBe(false);
-        expect(screen()).toContain('F5 autocomplete: off');
+        expect(screen()).toContain('F5 auto: off');
         await press('j');
         expect(screen()).not.toContain('jump to A');
         await press(KeyCodes.TAB);
         expect(editor().text).toBe('j'); // tab does what it did before: nothing
+    });
+});
+
+describe('preview', () => {
+    async function openPreview() {
+        await boot();
+        await press('n');
+        await press(KeyCodes.F6);
+    }
+
+    /** The background of the editor text at the start of `text`'s row. */
+    function lineBg(text: string): string {
+        const rows = screen().split('\n');
+        const y = rows.findIndex((r) => r.includes(text));
+        return cellAt(s.captureSpans(), rows[y]!.indexOf(text), y).bg;
+    }
+
+    test('F6 runs the saved text beside it, a step a second, and the preference is kept', async () => {
+        await boot();
+        await press('n');
+        expect(screen()).not.toContain('PREVIEW');
+        // F6 goes to the editor directly: the test renderer's key input waits on real timers.
+        jest.useFakeTimers();
+        try {
+            editor().handleKey({ name: 'f6' } as KeyEvent);
+            jest.advanceTimersByTime(PREVIEW_STEP_MS * 3); // add, mov, jmp: back at the add
+        } finally {
+            jest.useRealTimers();
+        }
+        await s.renderOnce();
+        expect(prefs().preview).toBe(true);
+        expect(screen()).toContain('PREVIEW');
+        expect(screen()).toContain('▶ running');
+        expect(screen()).toContain('step 3');
+        expect(screen()).toContain('next   +0  ADD.AB #4, $3');
+        await press(KeyCodes.F6);
+        expect(prefs().preview).toBe(false);
+        expect(screen()).not.toContain('PREVIEW');
+    });
+
+    test('F8 runs one step: the log shows what ran and the cells it read and wrote, and the line that runs next is lit', async () => {
+        await openPreview();
+        await press(KeyCodes.F8);
+        expect(screen()).toContain('❚❚ paused');
+        expect(screen()).toContain('   1   +0  ADD.AB #4, $3');
+        expect(screen()).toContain('r +3 w +3');
+        expect(screen()).toContain('next   +1  MOV.I $2, @2');
+        expect(lineBg('mov.i   bomb, @bomb')).toBe(NEXT_LINE_BG);
+        await press(KeyCodes.F8);
+        expect(screen()).toContain('   2   +1  MOV.I $2, @2');
+        expect(screen()).toContain('r +3 w +7'); // the bomb lands 4 past itself
+        expect(lineBg('jmp     loop')).toBe(NEXT_LINE_BG);
+    });
+
+    test('saving restarts it on the new text; until then it says it runs the last save and lights no line', async () => {
+        await openPreview();
+        await press(KeyCodes.F8);
+        editor().textarea.setText(`${NEW_WARRIOR_TEMPLATE}; a note\n`);
+        await s.renderOnce();
+        await s.renderOnce(); // the change event comes during the first frame
+        expect(screen()).toContain('unsaved: runs the last save');
+        expect(screen()).toContain('   1   +0  ADD.AB #4, $3');
+        expect(lineBg('mov.i   bomb, @bomb')).not.toBe(NEXT_LINE_BG);
+        editor().textarea.setText(';name Imp\nmov 0, 1\n');
+        await press('s', { ctrl: true });
+        expect(screen()).not.toContain('runs the last save');
+        expect(screen()).toContain('step 0');
+        expect(screen()).toContain('next   +0  MOV.I $0, $1');
+    });
+
+    test('a warrior whose last process runs DAT dies and the run stops; one with errors does not run', async () => {
+        await openPreview();
+        editor().textarea.setText(';name Dies\ndat 0, 0\n');
+        await press('s', { ctrl: true });
+        await press(KeyCodes.F8);
+        expect(screen()).toContain('✗ died at step 1');
+        expect(screen()).toContain('-1 process');
+        expect(screen()).toContain('F7 again');
+        editor().textarea.setText(';name Broken\nfoo 0, 1\n');
+        await press('s', { ctrl: true });
+        expect(screen()).toContain('✗ 1 error: fix and save to run');
+    });
+
+    test('F9 goes back to the start, paused; F7 plays', async () => {
+        await openPreview();
+        await press(KeyCodes.F8);
+        await press(KeyCodes.F7);
+        expect(screen()).toContain('▶ running');
+        await press(KeyCodes.F9);
+        expect(screen()).toContain('❚❚ paused');
+        expect(screen()).toContain('step 0');
+        expect(screen()).toContain('next   +0  ADD.AB #4, $3');
+        expect(editor().preview.playing).toBe(false);
+        await press(KeyCodes.F7);
+        expect(editor().preview.playing).toBe(true);
+    });
+
+    test('closing the editor stops the run', async () => {
+        await openPreview();
+        const preview = editor().preview;
+        expect(preview.playing).toBe(true);
+        await escape();
+        expect(app.overlays.isOpen('editor')).toBe(false);
+        expect(preview.playing).toBe(false);
     });
 });
 
@@ -1200,6 +1306,7 @@ describe('modal panels', () => {
         expect(all).toContain('F3      relative numbers on/off');
         expect(all).toContain('F4      format on save, auto-indent, snap on/off');
         expect(all).toContain('F5      autocomplete on/off');
+        expect(all).toContain('F6      preview on/off');
         expect(all).not.toContain('gg G, with counts');
         expect(all).toContain('the pale cell runs on the next step.');
     });

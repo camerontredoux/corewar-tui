@@ -15,17 +15,17 @@ describe('prefs', () => {
 
     test('a missing file gives the defaults: vim keys off, relative numbers, format on save and autocomplete on', () => {
         const dir = mkdtempSync(join(tmpdir(), 'corewar-prefs-'));
-        expect(loadPrefs(join(dir, 'none.json'))).toEqual({ vimKeys: false, relativeNumbers: true, formatOnSave: true, autocomplete: true });
-        expect(DEFAULT_PREFS).toEqual({ vimKeys: false, relativeNumbers: true, formatOnSave: true, autocomplete: true });
+        expect(loadPrefs(join(dir, 'none.json'))).toEqual({ vimKeys: false, relativeNumbers: true, formatOnSave: true, autocomplete: true, preview: false });
+        expect(DEFAULT_PREFS).toEqual({ vimKeys: false, relativeNumbers: true, formatOnSave: true, autocomplete: true, preview: false });
     });
 
     test('save creates the directory, round-trips, and leaves no temp file behind', () => {
         const dir = mkdtempSync(join(tmpdir(), 'corewar-prefs-'));
         const path = join(dir, 'corewar-tui', 'config.json');
-        savePrefs(path, { vimKeys: true, relativeNumbers: false, formatOnSave: true, autocomplete: true });
-        expect(loadPrefs(path)).toEqual({ vimKeys: true, relativeNumbers: false, formatOnSave: true, autocomplete: true });
-        savePrefs(path, { vimKeys: false, relativeNumbers: false, formatOnSave: false, autocomplete: true });
-        expect(loadPrefs(path)).toEqual({ vimKeys: false, relativeNumbers: false, formatOnSave: false, autocomplete: true });
+        savePrefs(path, { vimKeys: true, relativeNumbers: false, formatOnSave: true, autocomplete: true, preview: false });
+        expect(loadPrefs(path)).toEqual({ vimKeys: true, relativeNumbers: false, formatOnSave: true, autocomplete: true, preview: false });
+        savePrefs(path, { vimKeys: false, relativeNumbers: false, formatOnSave: false, autocomplete: true, preview: false });
+        expect(loadPrefs(path)).toEqual({ vimKeys: false, relativeNumbers: false, formatOnSave: false, autocomplete: true, preview: false });
         expect(readdirSync(join(dir, 'corewar-tui'))).toEqual(['config.json']);
     });
 
@@ -37,10 +37,10 @@ describe('prefs', () => {
         writeFileSync(path, 'null');
         expect(loadPrefs(path)).toEqual(DEFAULT_PREFS);
         writeFileSync(path, '{"vimKeys": true, "relativeNumbers": "no", "formatOnSave": 1}');
-        expect(loadPrefs(path)).toEqual({ vimKeys: true, relativeNumbers: true, formatOnSave: true, autocomplete: true });
+        expect(loadPrefs(path)).toEqual({ vimKeys: true, relativeNumbers: true, formatOnSave: true, autocomplete: true, preview: false });
         writeFileSync(path, '{"formatOnSave": false}');
-        expect(loadPrefs(path)).toEqual({ vimKeys: false, relativeNumbers: true, formatOnSave: false, autocomplete: true });
+        expect(loadPrefs(path)).toEqual({ vimKeys: false, relativeNumbers: true, formatOnSave: false, autocomplete: true, preview: false });
         writeFileSync(path, '{"autocomplete": false}');
-        expect(loadPrefs(path)).toEqual({ ...DEFAULT_PREFS, autocomplete: false });
+        expect(loadPrefs(path)).toEqual({ ...DEFAULT_PREFS, autocomplete: false, preview: false });
     });
 });

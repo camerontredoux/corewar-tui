@@ -94,8 +94,10 @@ Click **New** in the footer (or press `n`) to write a new warrior. Press `e`, or
 | `F3` or the **F3 relative numbers** footer button | Relative numbers on or off (see "Line numbers") |
 | `F4` or the **F4 format on save** footer button | Format on save, auto-indent and space snapping on or off (see "Format on save") |
 | `F5` or the **F5 autocomplete** footer button | Autocomplete on or off (see "Autocomplete") |
+| `F6` or the **F6 preview** footer button | Preview on or off (see "Preview") |
+| `F7` / `F8` / `F9` | Preview: play or pause / run one step / go back to the start, paused |
 
-When the panel is too narrow for the full toggle labels, the footer shortens them from the right (`F5 auto: on`, `F4 fmt: on`, `F3 rel: on`, `F2 vim: on`), then shows only the key and its state (`F5 on`).
+When the panel is too narrow for the full toggle labels, the footer shortens them from the right (`F5 auto: on`, `F4 fmt: on`, `F3 rel: on`, `F2 vim: on`), then shows only the key and its state (`F6 on`).
 
 ### Line numbers
 
@@ -130,6 +132,38 @@ The box has no border: it is a block of a slightly lighter background, one row p
 - With vim keys, the box appears only in insert mode.
 - The box opens just right of the cursor (after the cursor's cell), with its first entry on the cursor row, and stays inside the text area. When it would run past the right edge of the panel, it opens left of the word. When neither side has room, it opens below the cursor row (or above it). It floats over the text, so nothing moves.
 - Undo: `ctrl+z` removes a completion in one step. With vim keys, the completion is part of the insert, so `u` undoes the whole insert and `.` repeats it, completion included.
+
+### Preview
+
+The preview is off by default. Press `F6` to turn it on. The editor gets wider, and a panel at its right runs the warrior alone in a core, one instruction a second. Use it to see what each instruction does.
+
+```
+PREVIEW                   step 7
+ F7 play   F8 step   F9 reset
+ -10 · · · · · · · · · ·
+  +0 █ ■ █ × · · · × · ·
+ +10 · × · · · · · · · ·
+■ next  █ ran  × wrote  • read
+❚❚ paused · 1 process
+next   +1  MOV.I $2, @2
+
+   5   +1  MOV.I $2, @2
+           r +3 w +11
+   6   +2  JMP.B $-2, $0
+   7   +0  ADD.AB #4, $3
+           r +3 w +3
+```
+
+- The preview runs the saved text, not the text you are typing. Each save restarts it from step 0 and plays it. While the text has unsaved changes, the panel says `unsaved: runs the last save`.
+- The run uses the match settings (core size, cycle limit, process limit, standard). Offsets and wrap-around are the same as in a battle.
+- Offsets count from the warrior's first instruction (`+0`), like the relative line numbers. The board shows 10 cells per row. Its first row starts 10 cells before the warrior. The labels at the left give the offset of each row's first cell.
+- Board glyphs are the same as on the main board: `■` runs next, the white `█` ran last, `█` ran earlier, `×` was written, `•` was read, and `░` holds the warrior's code that has not been touched.
+- `next` shows the instruction that runs next, as the core holds it now. Click a board cell to show what that cell holds (click it again to hide it).
+- The log shows the latest steps, newest at the bottom. Each step shows its number, the offset that ran, and the instruction as it was before it ran. A second line gives the offsets it read (`r`) and wrote (`w`), and `+1 process` (SPL) or `-1 process` (a process died). Cells that are off the board show in the log too, for example `w +3044`.
+- In the text, the source line of the instruction that runs next has a dark orange background. The line shows only when the text is the same as the saved text.
+- The run stops when the warrior's last process dies (`✗ died at step 4`) or at the cycle limit. `F7` then starts it again.
+- `F7` plays or pauses. `F8` runs one step and pauses. `F9` goes back to step 0 and stays paused. The buttons in the panel do the same.
+- A saved text with errors does not run: the panel shows `✗ 2 errors: fix and save to run`.
 
 ### Format on save
 
@@ -202,10 +236,10 @@ Vim keys are off by default. When they are on, the editor starts in normal mode 
 
 ### Preferences file
 
-The app keeps the four preferences in `$XDG_CONFIG_HOME/corewar-tui/config.json`. If `XDG_CONFIG_HOME` is not set (or is not an absolute path), it uses `~/.config/corewar-tui/config.json`:
+The app keeps the five preferences in `$XDG_CONFIG_HOME/corewar-tui/config.json`. If `XDG_CONFIG_HOME` is not set (or is not an absolute path), it uses `~/.config/corewar-tui/config.json`:
 
 ```json
-{ "vimKeys": false, "relativeNumbers": true, "formatOnSave": true, "autocomplete": true }
+{ "vimKeys": false, "relativeNumbers": true, "formatOnSave": true, "autocomplete": true, "preview": false }
 ```
 
 The app writes the file when you toggle a preference, with an atomic write (a temporary file, then a rename). If the file is missing or corrupt, the app uses the defaults. A missing or incorrect value takes its default.
@@ -231,13 +265,13 @@ The picker reads the library again each time it opens, so a saved warrior shows 
 | `board.ts` | `CoreBoard` renderable and the layout calculations. |
 | `theme.ts` | UI colours, warrior palette (Okabe-Ito, safe for colour-blind users), and board glyphs. |
 | `keys.ts` | Key bindings. The footer and the help overlay are made from this table. |
-| `prefs.ts` | Editor preferences (vim keys, relative numbers, format on save, autocomplete) and the config file. |
+| `prefs.ts` | Editor preferences (vim keys, relative numbers, format on save, autocomplete, preview) and the config file. |
 | `redcode-ref.ts` | One-line descriptions of the opcodes and directives, used by the Help page and the editor's autocomplete. |
 | `vim.ts` | The vim keys engine. It edits through a small buffer interface, so its tests need no renderer. |
 | `library.ts` | `WarriorLibrary`: `.red` files in `warriors/` and `examples/`, plus the built-in samples. `save()`, `delete()` (move to `.trash/`) and the naming helpers. |
 | `ui.ts` | `SegmentText` (styled, clickable text) and `panel()`. |
-| `overlays/` | `manager.ts` (overlay stack, key routing), `inspector`, `picker`, `settings`, `results`, `help`, `editor` (text area, highlighting, diagnostics, relative-number gutter, autocomplete). |
+| `overlays/` | `manager.ts` (overlay stack, key routing), `inspector`, `picker`, `settings`, `results`, `help`, `editor` (text area, highlighting, diagnostics, relative-number gutter, autocomplete), `preview` (the editor's step-by-step run of the saved warrior). |
 
 ## Tests
 
-Run `bun test packages/tui`. The controller tests use `FakeSimulator` (`test-fakes.ts`). The board and app tests use `createTestRenderer`. `app.engine.test.ts` runs a short match with the real engine. `app.editor.test.ts` drives the editor (also with vim keys, format on save, autocomplete and the preferences file), tests `completionAt` and the picker's Delete with the real parser, in a temporary directory. `vim.test.ts` tests the vim engine on a string buffer, `editor.cells.test.ts` the line-to-cell mapping, and `prefs.test.ts` the preferences file.
+Run `bun test packages/tui`. The controller tests use `FakeSimulator` (`test-fakes.ts`). The board and app tests use `createTestRenderer`. `app.engine.test.ts` runs a short match with the real engine. `app.editor.test.ts` drives the editor (also with vim keys, format on save, autocomplete, the preview and the preferences file), tests `completionAt` and the picker's Delete with the real parser, in a temporary directory. `vim.test.ts` tests the vim engine on a string buffer, `editor.cells.test.ts` the line-to-cell mapping, and `prefs.test.ts` the preferences file.

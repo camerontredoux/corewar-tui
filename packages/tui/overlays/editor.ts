@@ -8,14 +8,16 @@
  * Saving goes through `deps.save` (app.ts -> `WarriorLibrary.save`), and is
  * allowed with parse errors: the file is a draft until it parses.
  *
- * Four preferences (prefs.ts), toggled with F2 to F5 or the footer buttons:
+ * Five preferences (prefs.ts), toggled with F2 to F6 or the footer buttons:
  * relative numbers (on by default: the gutter shows each instruction's cell
  * offset from the cursor line, see `drawGutter`), vim keys (off by default:
  * vim.ts drives the Textarea, and Escape no longer closes; `:q` does), format
  * on save (on by default: see `format`; it also turns on auto-indent, see
  * `autoIndent` and `backspaceWidth`) and autocomplete (on by default: while
  * an opcode is typed, a box beside the cursor lists the matching opcodes and
- * directives, see `completionAt` and `drawCompletion`).
+ * directives, see `completionAt` and `drawCompletion`) and preview (off by
+ * default: the saved warrior runs beside the text, a step a second, and the
+ * source line that runs next is highlighted; see preview.ts and `drawGutter`).
  */
 
 import {
@@ -28,7 +30,7 @@ import {
     type LineColorConfig,
     type LineSign,
 } from '@opentui/core';
-import { MessageType, OPCODE_NAMES, MODIFIER_NAMES, TokenCategory, type IParseResult } from '../../engine/index.ts';
+import { MessageType, OPCODE_NAMES, MODIFIER_NAMES, TokenCategory, type IParseResult, type ISimulatorOptions } from '../../engine/index.ts';
 import { formatRedcodeSafely, instructionColumn, operandColumn } from '../../engine/parser/index.ts';
 import type { WarriorEntry } from '../library.ts';
 import type { EditorPrefs } from '../prefs.ts';
@@ -37,6 +39,7 @@ import { INSTRUCTION_REFS, syntaxOf, type InstructionRef } from '../redcode-ref.
 import { SegmentText, button, fitLine, lineWidth, panel, spread, type Line, type Segment } from '../ui.ts';
 import { Vim, type VimBuffer, type VimHost } from '../vim.ts';
 import type { Overlay } from './manager.ts';
+import { NEXT_LINE_BG, PREVIEW_WIDTH, Preview } from './preview.ts';
 
 export interface EditorRequest {
     mode: 'new' | 'edit';
@@ -54,6 +57,8 @@ export interface EditorDeps {
     prefs: EditorPrefs;
     /** Persist toggled preferences. Throws on I/O errors. */
     savePrefs(prefs: EditorPrefs): void;
+    /** The match's simulator settings, which the preview runs with. */
+    options: ISimulatorOptions;
 }
 
 export const NEW_WARRIOR_TEMPLATE = `;redcode-94
@@ -309,13 +314,14 @@ const STYLES = {
 
 const ERROR_BG = '#4c1d1d';
 /** Function keys that flip a preference. */
-const PREF_KEYS: Readonly<Record<string, keyof EditorPrefs>> = { f2: 'vimKeys', f3: 'relativeNumbers', f4: 'formatOnSave', f5: 'autocomplete' };
+const PREF_KEYS: Readonly<Record<string, keyof EditorPrefs>> = { f2: 'vimKeys', f3: 'relativeNumbers', f4: 'formatOnSave', f5: 'autocomplete', f6: 'preview' };
 /** Footer toggles: key, preference, then labels from longest to shortest (see `toggles`). */
 const TOGGLES: readonly [string, keyof EditorPrefs, string, string][] = [
     ['F2', 'vimKeys', 'vim keys', 'vim'],
     ['F3', 'relativeNumbers', 'relative numbers', 'rel'],
     ['F4', 'formatOnSave', 'format on save', 'fmt'],
     ['F5', 'autocomplete', 'autocomplete', 'auto'],
+    ['F6', 'preview', 'preview', 'run'],
 ];
 /** The most completion rows shown at once. */
 const COMPLETION_ROWS = 8;
@@ -359,6 +365,9 @@ export class EditorOverlay implements Overlay, VimHost {
     private snap: { text: string; end: number; width: number } | null = null;
     private readonly popup: BoxRenderable;
     private readonly popupText: SegmentText;
+    readonly preview: Preview;
+    /** The terminal size the editor was last placed in, to place it again when the preview is toggled. */
+    private screen = { width: 80, height: 24 };
 
     constructor(
         private readonly renderer: CliRenderer,
@@ -402,7 +411,15 @@ export class EditorOverlay implements Overlay, VimHost {
             minWidth: 3,
         });
         this.status = new SegmentText(renderer, { id: 'editor-status', height: 3, flexShrink: 0 });
-        this.root.add(this.gutter);
+        this.preview = new Preview(renderer, deps.options, () => {
+            this.gutterVersion++;
+            this.renderer.requestRender();
+        });
+        this.preview.root.visible = this.prefs.preview;
+        const body = new BoxRenderable(renderer, { id: 'editor-body', flexDirection: 'row', flexGrow: 1 });
+        body.add(this.gutter);
+        body.add(this.preview.root);
+        this.root.add(body);
         this.root.add(this.status);
         this.popup = new BoxRenderable(renderer, {
             id: 'editor-completion',
@@ -417,6 +434,7 @@ export class EditorOverlay implements Overlay, VimHost {
         this.root.add(this.popup);
         // Runs before each frame's layout, so the gutter and the completion box follow cursor moves (keys, clicks) in the same frame.
         this.root.onLifecyclePass = () => {
+            if (this.prefs.preview) this.preview.fit();
             this.drawGutter();
             this.drawCompletion();
         };
@@ -425,6 +443,7 @@ export class EditorOverlay implements Overlay, VimHost {
         this.updateCells();
         this.highlight();
         if (this.prefs.vimKeys) this.vim = new Vim(this.vimBuffer(), this);
+        if (this.prefs.preview) this.runPreview(source);
     }
 
     get text(): string {
@@ -435,8 +454,25 @@ export class EditorOverlay implements Overlay, VimHost {
         return this.text !== this.savedText;
     }
 
+    /** With the preview on, wider by the preview's width (as far as the terminal allows). */
     size(width: number, height: number) {
-        return { width: Math.max(Math.min(60, width - 2), Math.floor(width * 0.75)), height: Math.max(Math.min(16, height - 2), Math.floor(height * 0.8)) };
+        const text = Math.max(Math.min(60, width - 2), Math.floor(width * 0.75));
+        return {
+            width: this.prefs.preview ? Math.max(text, Math.min(width - 2, text + PREVIEW_WIDTH)) : text,
+            height: Math.max(Math.min(16, height - 2), Math.floor(height * 0.8)),
+        };
+    }
+
+    /** `size()` centred, as the overlay manager places overlays. */
+    place(width: number, height: number): void {
+        this.screen = { width, height };
+        const s = this.size(width, height);
+        const w = Math.max(10, Math.min(s.width, width));
+        const h = Math.max(5, Math.min(s.height, height));
+        this.root.width = w;
+        this.root.height = h;
+        this.root.left = Math.max(0, Math.floor((width - w) / 2));
+        this.root.top = Math.max(0, Math.floor((height - h) / 2));
     }
 
     handleKey(key: KeyEvent): boolean {
@@ -448,6 +484,14 @@ export class EditorOverlay implements Overlay, VimHost {
         const pref = PREF_KEYS[key.name];
         if (pref) {
             this.toggle(pref);
+            return true;
+        }
+        if (this.prefs.preview && (key.name === 'f7' || key.name === 'f8' || key.name === 'f9')) {
+            if (key.name === 'f7') this.preview.toggle();
+            else if (key.name === 'f8') this.preview.stepOnce();
+            else this.preview.restart();
+            this.gutterVersion++;
+            this.renderer.requestRender();
             return true;
         }
         const c = this.currentCompletion();
@@ -565,6 +609,7 @@ export class EditorOverlay implements Overlay, VimHost {
             const draft = errors ? ` with ${errors} error${errors === 1 ? '' : 's'}` : '';
             this.notice = [{ text: `✓ saved ${entry.id}${draft}`, fg: errors ? HEX.warn : HEX.good }, ...(note ? [{ text: ` · ${note}`, fg: HEX.muted }] : [])];
             saved = true;
+            if (this.prefs.preview) this.runPreview(source);
         } catch (e) {
             this.notice = [{ text: `✗ not saved: ${e instanceof Error ? e.message : String(e)}`, fg: HEX.bad }];
         }
@@ -623,6 +668,10 @@ export class EditorOverlay implements Overlay, VimHost {
 
     refresh(): void {
         if (this.textarea.isDestroyed) return;
+        if (this.prefs.preview) {
+            this.preview.stale = this.preview.source !== null && this.text !== this.preview.source;
+            this.preview.draw();
+        }
         if (!this.focused) {
             this.focused = true;
             this.textarea.focus();
@@ -673,6 +722,7 @@ export class EditorOverlay implements Overlay, VimHost {
     onClose(): void {
         if (this.timer !== undefined) clearTimeout(this.timer);
         this.timer = undefined;
+        this.preview.pause();
         this.textarea.blur();
         this.root.destroyRecursively();
         this.style.destroy();
@@ -692,6 +742,13 @@ export class EditorOverlay implements Overlay, VimHost {
             this.textarea.clearSelection();
             this.vim = this.prefs.vimKeys ? new Vim(this.vimBuffer(), this) : undefined;
             this.showMode();
+        }
+        if (pref === 'preview') {
+            this.preview.root.visible = this.prefs.preview;
+            if (this.prefs.preview) this.runPreview(this.savedText);
+            else this.preview.pause();
+            this.gutterVersion++;
+            this.place(this.screen.width, this.screen.height);
         }
         try {
             this.deps.savePrefs(this.prefs);
@@ -767,6 +824,16 @@ export class EditorOverlay implements Overlay, VimHost {
             this.renderer.requestRender();
         }, CHECK_DELAY_MS);
         this.refresh();
+    }
+
+    /** Restart the preview on `source` (the saved text). */
+    private runPreview(source: string): void {
+        try {
+            this.preview.load(source, this.deps.check(source));
+        } catch (e) {
+            this.preview.fail(source, `✗ parser failed: ${e instanceof Error ? e.message : String(e)}`);
+        }
+        this.gutterVersion++;
     }
 
     private check(): void {
@@ -920,7 +987,9 @@ export class EditorOverlay implements Overlay, VimHost {
     }
 
     /**
-     * Error lines get a red background, gutter and text alike. With relative numbers, each line that makes
+     * Error lines get a red background, gutter and text alike. With the
+     * preview on and the text as it runs there, the line of the instruction
+     * that runs next gets the warrior's colour, dimmed. With relative numbers, each line that makes
      * one cell shows its signed offset from the cursor (cellOffsets), lines
      * without a cell are blank, and the cursor line shows ▸ and its own line
      * number, so diagnostics' line numbers stay easy to find.
@@ -928,10 +997,13 @@ export class EditorOverlay implements Overlay, VimHost {
     private drawGutter(): void {
         if (this.textarea.isDestroyed) return;
         const row = this.textarea.logicalCursor.row;
-        const state = `${this.prefs.relativeNumbers} ${row} ${this.gutterVersion}`;
+        const cell = this.prefs.preview && this.text === this.preview.source ? this.preview.nextCell() : null;
+        const next = cell === null ? -1 : this.cells.findIndex((c) => c.includes(cell));
+        const state = `${this.prefs.relativeNumbers} ${row} ${this.gutterVersion} ${next}`;
         if (state === this.gutterDrawn) return;
         this.gutterDrawn = state;
         const colors = new Map<number, LineColorConfig>(this.diagnostics.errorLines.map((line) => [line - 1, { gutter: ERROR_BG, content: ERROR_BG }]));
+        if (next >= 0 && !colors.has(next)) colors.set(next, { gutter: NEXT_LINE_BG, content: NEXT_LINE_BG });
         const numbers = new Map<number, number>();
         const signs = new Map<number, LineSign>();
         const hidden = new Set<number>();
