@@ -10,7 +10,7 @@ import { createApp, type App } from './app.ts';
 import { formatRedcode } from '../engine/parser/index.ts';
 import { CHECK_DELAY_MS, EditorOverlay, NEW_WARRIOR_TEMPLATE, autoIndent, backspaceWidth, completionAt, snapWidth, tokenizeLine } from './overlays/editor.ts';
 import type { PickerOverlay } from './overlays/picker.ts';
-import { NEXT_LINE_BG, PREVIEW_STEP_MS } from './overlays/preview.ts';
+import { NEXT_LINE_BG, PREVIEW_STEP_MS, QUEUED_LINE_BG } from './overlays/preview.ts';
 import { HEX } from './theme.ts';
 import { cellAt } from './test-fakes.ts';
 
@@ -1160,6 +1160,21 @@ describe('preview', () => {
         expect(screen()).toContain('   2   +1  MOV.I $2, @2');
         expect(screen()).toContain('r +3 w +7'); // the bomb lands 4 past itself
         expect(lineBg('jmp     loop')).toBe(NEXT_LINE_BG);
+    });
+
+    test('after SPL, the lines the other processes run later are lit blue', async () => {
+        await openPreview();
+        editor().textarea.setText(';name Twin\nspl 2\njmp -1\nmov 0, 1\n');
+        await press('s', { ctrl: true });
+        await press(KeyCodes.F8); // spl: the next process runs the jmp, the new one waits at the mov
+        expect(screen()).toContain('+1 process');
+        expect(lineBg('jmp')).toBe(NEXT_LINE_BG);
+        expect(lineBg('mov')).toBe(QUEUED_LINE_BG);
+        expect(lineBg('spl')).not.toBe(QUEUED_LINE_BG);
+        await press(KeyCodes.F8); // jmp: now the mov runs next and the spl waits
+        expect(lineBg('mov')).toBe(NEXT_LINE_BG);
+        expect(lineBg('spl')).toBe(QUEUED_LINE_BG);
+        expect(lineBg('jmp')).not.toBe(QUEUED_LINE_BG);
     });
 
     test('saving resets it to the new text, paused; until then it says it runs the last save and lights no line', async () => {

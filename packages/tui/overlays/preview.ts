@@ -49,6 +49,8 @@ const WIDTH = PREVIEW_WIDTH - 2;
 const COLOR = warriorHex(0);
 /** Background of the source line that runs next (editor.ts) and of the run's swatches. */
 export const NEXT_LINE_BG = shadeHex(COLOR, 4);
+/** Background of the source lines the other processes (from SPL) run later (editor.ts). */
+export const QUEUED_LINE_BG = shadeHex(HEX.accent, 4);
 
 export interface PreviewStep {
     /** 1 for the first instruction run. */
@@ -200,11 +202,23 @@ export class Preview {
 
     /** The next instruction's cell counted from the warrior's first one, or null when it runs outside its code. */
     nextCell(): number | null {
+        return this.processCells()[0] ?? null;
+    }
+
+    /** The cells the other processes run later, in queue order, without repeats or the next cell. */
+    queuedCells(): number[] {
+        const [next, ...rest] = this.processCells();
+        return [...new Set(rest.filter((c): c is number => c !== null && c !== next))];
+    }
+
+    /** Each process's next cell, next-to-run first; null where it runs outside the code. */
+    private processCells(): (number | null)[] {
         const p = this.sim?.getProcessView()[0];
-        const pc = p?.alive ? p.instructionPointers[0] : undefined;
-        if (pc === undefined) return null;
-        const cell = fold(pc - p!.loadAddress, this.coresize);
-        return cell < p!.length ? cell : null;
+        if (!p?.alive) return [];
+        return p.instructionPointers.map((pc) => {
+            const cell = fold(pc - p.loadAddress, this.coresize);
+            return cell < p.length ? cell : null;
+        });
     }
 
     /** Board rows for the height the layout gave: about 40% of it. Run before each frame's layout. */

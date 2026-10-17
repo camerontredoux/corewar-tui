@@ -160,7 +160,7 @@ next   +1  MOV.I $2, @2
 - Board glyphs are the same as on the main board: `■` runs next, the white `█` ran last, `█` ran earlier, `×` was written, `•` was read, and `░` holds the warrior's code that has not been touched.
 - `next` shows the instruction that runs next, as the core holds it now. Click a board cell to show what that cell holds (click it again to hide it).
 - The log shows the latest steps, newest at the bottom. Each step shows its number, the offset that ran, and the instruction as it was before it ran. A second line gives the offsets it read (`r`) and wrote (`w`), and `+1 process` (SPL) or `-1 process` (a process died). Cells that are off the board show in the log too, for example `w +3044`.
-- In the text, the source line of the instruction that runs next has a dark orange background. The line shows only when the text is the same as the saved text.
+- In the text, the source line of the instruction that runs next has a dark orange background. After `SPL`, the warrior has more than one process: the lines that the other processes run later have a dark blue background. These lines show only when the text is the same as the saved text.
 - The run stops when the warrior's last process dies (`✗ died at step 4`) or at the cycle limit. `F7` then starts it again.
 - `F7` plays or pauses. `F8` runs one step and pauses. `F9` goes back to step 0 and stays paused. The buttons in the panel do the same.
 - A saved text with errors does not run: the panel shows `✗ 2 errors: fix and save to run`.

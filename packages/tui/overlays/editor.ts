@@ -39,7 +39,7 @@ import { INSTRUCTION_REFS, syntaxOf, type InstructionRef } from '../redcode-ref.
 import { SegmentText, button, fitLine, lineWidth, panel, spread, type Line, type Segment } from '../ui.ts';
 import { Vim, type VimBuffer, type VimHost } from '../vim.ts';
 import type { Overlay } from './manager.ts';
-import { NEXT_LINE_BG, PREVIEW_WIDTH, Preview } from './preview.ts';
+import { NEXT_LINE_BG, PREVIEW_WIDTH, Preview, QUEUED_LINE_BG } from './preview.ts';
 
 export interface EditorRequest {
     mode: 'new' | 'edit';
@@ -997,13 +997,17 @@ export class EditorOverlay implements Overlay, VimHost {
     private drawGutter(): void {
         if (this.textarea.isDestroyed) return;
         const row = this.textarea.logicalCursor.row;
-        const cell = this.prefs.preview && this.text === this.preview.source ? this.preview.nextCell() : null;
-        const next = cell === null ? -1 : this.cells.findIndex((c) => c.includes(cell));
-        const state = `${this.prefs.relativeNumbers} ${row} ${this.gutterVersion} ${next}`;
+        const running = this.prefs.preview && this.text === this.preview.source;
+        const lineOf = (cell: number) => this.cells.findIndex((c) => c.includes(cell));
+        const cell = running ? this.preview.nextCell() : null;
+        const next = cell === null ? -1 : lineOf(cell);
+        const queued = running ? this.preview.queuedCells().map(lineOf) : [];
+        const state = `${this.prefs.relativeNumbers} ${row} ${this.gutterVersion} ${next} ${queued}`;
         if (state === this.gutterDrawn) return;
         this.gutterDrawn = state;
         const colors = new Map<number, LineColorConfig>(this.diagnostics.errorLines.map((line) => [line - 1, { gutter: ERROR_BG, content: ERROR_BG }]));
         if (next >= 0 && !colors.has(next)) colors.set(next, { gutter: NEXT_LINE_BG, content: NEXT_LINE_BG });
+        for (const line of queued) if (line >= 0 && !colors.has(line)) colors.set(line, { gutter: QUEUED_LINE_BG, content: QUEUED_LINE_BG });
         const numbers = new Map<number, number>();
         const signs = new Map<number, LineSign>();
         const hidden = new Set<number>();
